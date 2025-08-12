@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品库存管理</title>
+    <style>
+        /*基础样式*/
+        :root {
+            --bg : #f6f7fb;
+            --card : #fff;
+            --text : #1f2937;
+            --muted : #6b7280;
+            --line : #e5e7eb;
+            --primary : #2563eb;
+            --danger : #ef4444;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans SC", sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+        .app {
+            max-width: 980px;
+            margin: 40px auto;
+            padding: 24px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
+        h1 {
+            margin: 0 0 12px;
+            font-size: 24px;
+        }
+        .sub {
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+        /*表单区*/
+        form#create-form {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 16px;
+        }
+        label {
+            display: flex;
+            flex-direction: column;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        input[type="text"],input[type="number"] {
+            padding: 10px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+        input[aria-invalid="true"] {
+            border-color: #ef4444;
+        }
+        input:focus {
+            border-color: var(--primary);
+        }
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .btn-ghost {
+            background: #fff;
+            border: 1px solid var(--line);
+        }
+        /*搜索工具条*/
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin: 8px 0 16px;
+            position: relative;
+        }
+        .toolbar input[type="search"] {
+            flex: 1;
+            padding: 10px 30px 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+        .toolbar input[type="search"]:focus {
+            border-color: var(--primary);
+        }
+        .toolbar .clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 2px 6px;
+            color: #9ca3af;
+        }
+        .toolbar .clear-btn:hover {
+            color: #4b5563;
+        }
+        /*表格*/
+        .table-wrap {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+        thead th {
+            font-size: 12px;
+            text-align: left;
+            color: var(--muted);
+            background: #fafafa;
+            border-bottom: 1px solid var(--line);
+            padding: 12px;
+        }
+        tbody td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+        }
+        tbody tr:hover {
+            background: #fafcff;
+        }
+        .col-actions {
+            width: 120px;
+        }
+        /*响应式*/
+        @media (max-width : 720px) {
+            form#create-form {
+                grid-template-columns: 1fr 1fr;
+            }
+            .app {
+                margin: 16px;
+            }
+            .table-wrap {
+                overflow: auto;
+            }
+            table {
+                min-width: 640px;
+                display: block;
+            }
+        }
+        /*轻提示*/
+        .tip {
+            margin: 12px 0 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .toast {
+            position: fixed;
+            inset: auto 16px 16px auto;
+            background: #111;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: 0.25s;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .badge-low {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <h1>商品库存管理后台<span style="font-size: 14px; color: var(--muted);">（含搜索 + 持久化）</span></h1>
+        <div class="sub">功能：显示 → 新增 → 删除 → 搜索（商品名 / 品牌） → LocalStorage 持久化</div>
+        <form id="create-form">
+            <label>商品名称
+                <input type="text" id="p-title" placeholder="例如：机械键盘" required />
+            </label>
+            <label>品牌
+                <input type="text" id="p-brand" placeholder="例如：Akko" required />
+            </label>
+            <label>单价（￥）
+                <input type="number" id="p-price" placeholder="例如：299" min="0" step="0.01" required />
+            </label>
+            <label>库存
+                <input type="number" id="p-stock" placeholder="例如：12" min="0" step="1" required />
+            </label>
+            <button class="btn-primary" type="submit">添加商品</button>
+        </form>
+        <div class="tip">小技巧：先把功能跑通，不纠结样式；删除/新增后会自动保存并刷新表格。</div>
+        <div class="toolbar">
+            <input type="search" id="search" placeholder="搜索商品名或品牌">
+            <button id="clearSearch" class="clear-btn" aria-label="清空搜索">×</button>
+        </div>
+        <div class="table-wrap" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 64px">#</th>
+                        <th scope="col">名称</th>
+                        <th scope="col" style="width: 180px">品牌</th>
+                        <th scope="col" style="width: 140px" data-sort="price">单价（￥）</th>
+                        <th scope="col" style="width: 100px">库存</th>
+                        <th scope="col" class="col-actions">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+        <div style="margin-top: 10px;">
+            <button id="resetData" class="btn-ghost">重置数据（清空本地并还原示例）</button>
+        </div>
+        <div id="pager" style="margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"></div>
+        <div id="ioBar" style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="exportJSON" class="btn-ghost">导出 JSON</button>
+            <button id="importBtn" class="btn-ghost">导入 JSON</button>
+            <input type="file" id="importFile" accept="application/json" style="display: none;">
+        </div>
+        <div class="tip">后续 Day6 将做：样式升级与移动端优化；Day7：上线到 GitHub Pages。</div>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script>
+        //====== 存储命名空间（商品管理）======
+        const STORAGE_KEY = 'pm:products:v1';
+        //====== 初始示例数据 ======
+        /* 每条商品：{ id, title, brand, price, stock }*/
+        let products = [
+            { id: crypto.randomUUID(), title:"机械键盘", brand:"Akko", price: 299, stock: 12 },
+            { id: crypto.randomUUID(), title:"降噪耳机", brand:"Sony", price: 899, stock: 3 },
+            { id: crypto.randomUUID(), title:"显示器", brand:"Dell", price: 1299, stock: 7 },
+        ];
+        //读取本地
+        try{
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if(saved){
+                const arr = JSON.parse(saved);
+                if(Array.isArray(arr)) products = arr;
+            }
+        }catch(e){}
+        //====== DOM ======
+        const $tbody = document.getElementById('tbody');
+        const $form = document.getElementById('create-form');
+        const $title = document.getElementById('p-title');
+        const $brand = document.getElementById('p-brand');
+        const $price = document.getElementById('p-price');
+        const $stock = document.getElementById('p-stock');
+        const $toast = document.getElementById('toast');
+        const $search = document.getElementById('search');
+        const $clear = document.getElementById('clearSearch');
+        const $resetBtn = document.getElementById('resetData');
+        //====== 工具 ======
+        function toast(msg){
+            $toast.textContent = msg;
+            $toast.classList.add('show');
+            setTimeout(()=> $toast.classList.remove('show'), 1600);
+        }
+        function debounce(fn, delay=200){
+            let t;
+            return (...args)=>{
+                clearTimeout(t);
+                t=setTimeout(()=>fn(...args), delay);
+            };
+        }
+        function escapeHTML(str){
+            return String(str).replace(/[&<>"']/g, s=>({
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;",
+                "\"":"&quot;",
+                "'":"&#39;"
+            }[s]));
+        }
+        //====== 状态：搜索 / 排序 / 分页 ======
+        let keyword = '';
+        let sortBy = null;
+        let sortDir = 'asc';
+        let page = 1;
+        const pageSize = 10;
+        
+        function getPaged(list){
+            const total = list.length;
+            const pages = Math.max(1,Math.ceil(total / pageSize));
+            if(page > pages) page = pages;
+            const start = (page-1)*pageSize;
+            return {
+                total,
+                pages,
+                data: list.slice(start, start+pageSize)
+            };
+        }
+        function sortList(list){
+            if(!sortBy) return list;
+            const dir = sortDir === 'asc' ? 1 : -1;
+            return [...list].sort((a,b)=>{
+                const av = Number(a[sortBy] ?? 0);
+                const bv = Number(b[sortBy] ?? 0);
+                if(av===bv) return 0;
+                return av > bv ? dir : -dir;
+            });
+        }
+        function getFiltered(){
+            const kw = keyword.trim().toLowerCase();
+            let base = products;
+            if(kw){
+                base = products.filter(p =>
+                    String(p.title||'').toLowerCase().includes(kw)||
+                    String(p.brand||'').toLowerCase().includes(kw)
+                );
+            }
+            return sortList(base);
+        }
+        function rerender(){
+            const list = getFiltered();
+            const { total, pages, data } = getPaged(list);
+            renderTable(data);
+            renderPager(total, pages);
+        }
+        //====== 价格表头点击切换排序 ======
+        document.querySelectorAll('th[data-sort]').forEach(th=>{
+            th.style.cursor='pointer';
+            th.addEventListener('click',()=>{
+                const key = th.dataset.sort;
+                if(sortBy===key){
+                    sortDir = (sortDir==='asc'?'desc':'asc');
+                }else {
+                    sortBy=key;
+                    sortDir='asc';
+                }
+                document.querySelectorAll('th[data-sort]').forEach(el=>
+                    el.textContent = el.textContent.replace(/[↑↓]\s*$/,'')
+                );
+                th.textContent = th.textContent + (sortDir==='asc'? ' ↑':' ↓');
+                rerender();
+            });
+        });
+        //====== 持久化（字段白名单）======
+        function persist(){
+            try{
+                const clean = products.map(p=>({
+                    id: String(p.id),
+                    title: String(p.title||'').trim(),
+                    brand: String(p.brand||'').trim(),
+                    price: Number(p.price||0),
+                    stock: Number(p.stock||0),
+                }));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+            }catch(e){}
+        }
+        // ====== 渲染表格（库存<5 标红） ======
+        function renderTable(list){
+            if(!Array.isArray(list)) list=[];
+            if(list.length===0){
+                $tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">暂无商品</td></tr>`;
+                return;
+            }
+            $tbody.innerHTML = list.map((p, idx)=>{
+                const price = Number(p.price||0).toLocaleString('zh-CN', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                });
+                const low = Number(p.stock||0) < 5;
+                const stockCell = low ? `<span class="badge-low">${Number(p.stock||0)}</span>` : Number(p.stock||0);
+                return `
+                    <tr>
+                        <td>${(page-1)*pageSize + idx + 1}</td>
+                        <td data-edit="title" data-id="${p.id}">${escapeHTML(p.title)}</td>
+                        <td data-edit="brand" data-id="${p.id}">${escapeHTML(p.brand)}</td>
+                        <td>￥${price}</td>
+                        <td>${stockCell}</td>
+                        <td>
+                            <button class="btn-ghost" data-action="del" data-id="${p.id}" aria-label="删除：${escapeHTML(p.title)}">删除</button>
+                        </td>
+                    </tr>`;
+            }).join('');
+        }
+        // ====== 分页条 ======
+        function renderPager(total, pages){
+            const $p = document.getElementById('pager');
+            if(!$p) return;
+            $p.innerHTML = `
+                <button class="btn-ghost" id="prevPage" ${page<=1?'disabled':''}>上一页</button>
+                <span class="tip">第 ${page} / ${pages} 页（共 ${total} 条）</span>
+                <button class="btn-ghost" id="nextPage" ${page>=pages?'disabled':''}>下一页</button>
+            `;
+            document.getElementById('prevPage')?.addEventListener('click', ()=>{
+                if(page>1){
+                    page--;
+                    rerender();
+                }
+            });
+            document.getElementById('nextPage')?.addEventListener('click', ()=>{
+                if(page < pages){
+                    page++;
+                    rerender();
+                }
+            });
+        }
+        // ====== 删除 ======
+        $tbody.addEventListener('click', (e)=>{
+            const btn = e.target.closest('button[data-action="del"]');
+            if(!btn) return;
+            const id = btn.dataset.id;
+            const index = products.findIndex(p=> String(p.id)===String(id));
+            if(index>-1){
+                if(!confirm('确认删除该商品吗？')) return;
+                products.splice(index,1);
+                persist();
+                rerender();
+                toast('已删除');
+            }
+        });
+        // ====== 新增（校验：名称/品牌 2~50; 价格>=0; 库存>=0 ）======
+        $form.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const title = $title.value.trim().replace(/\s+/g,' ');
+            const brand = $brand.value.trim().replace(/\s+/g,' ');
+            const price = Number(($price.value||'').trim());
+            const stock = Number(($stock.value||'').trim());
+
+            [$title,$brand,$price,$stock].forEach(el=> el.removeAttribute('aria-invalid'));
+
+            let ok = true;
+            if(title.length<2 || title.length>50){
+                $title.setAttribute('aria-invalid','true');
+                ok=false;
+            }
+            if(brand.length<2 || brand.length>50){
+                $brand.setAttribute('aria-invalid','true');
+                ok=false;
+            }
+            if(!Number.isFinite(price) || price<0){
+                $price.setAttribute('aria-invalid','true');
+                ok=false;
+            }
+            if(!Number.isFinite(stock) || stock<0){
+                $stock.setAttribute('aria-invalid','true');
+                ok=false;
+            }
+            if(!ok){
+                ($title.getAttribute('aria-invalid')==='true' && $title.focus()) ||
+                ($brand.getAttribute('aria-invalid')==='true' && $brand.focus()) ||
+                ($price.getAttribute('aria-invalid')==='true' && $price.focus()) ||
+                $stock.focus();
+                toast('请检查：名称/品牌 2~50；单价≥0；库存≥0');
+                return;
+            }
+            products.push({
+                id: crypto.randomUUID(),
+                title,
+                brand,
+                price,
+                stock
+            });
+            $form.reset();
+            page = 1;
+            persist();
+            rerender();
+            toast('已添加');
+        });
+        // ====== 行内编辑（名称/品牌可改）======
+        let editing = null;
+        $tbody.addEventListener('click', (e)=>{
+            const cell = e.target.closest('td[data-edit]');
+            if(!cell) return;
+            const id = cell.dataset.id;
+            const field = cell.dataset.edit;
+            if(editing && (editing.id!==id || editing.field!==field)) finishEdit(false);
+            startEdit(cell, id, field);
+        });
+        function startEdit(cell, id, field){
+            editing = { id, field };
+            const prev = cell.textContent.trim();
+            cell.dataset.prev = prev;
+            cell.innerHTML = `<input class="cell-input" value="${prev.replace(/"/g,'&quot;')}" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px">`;
+            const input = cell.querySelector('input');
+            input.focus();
+            input.select();
+            input.addEventListener('keydown', (e)=>{
+                if(e.key==='Enter') finishEdit(true);
+                if(e.key==='Escape') finishEdit(false);
+            });
+            input.addEventListener('blur', ()=> finishEdit(true), { once:true });
+        }
+        function finishEdit(save){
+            if(!editing) return;
+            const { id,field } = editing;
+            const cell = $tbody.querySelector(`td[data-edit="${field}"][data-id="${id}"]`);
+            const input = cell?.querySelector('input');
+            const prev = cell?.dataset.prev || '';
+            let next = input ? input.value.trim().replace(/\s+/g,' ') : prev;
+
+            if(save){
+                if(next.length<2 || next.length>50){
+                    toast('名称/品牌需 2~50 字');
+                    next=prev;
+                    save=false;
+                }
+            }
+            cell.innerHTML = escapeHTML(next);
+            if(save){
+                const item = products.find(x=> String(x.id)===String(id));
+                item[field] = next;
+                persist();
+                toast('已保存');
+            }
+            editing = null;
+        }
+        // ====== 搜索（回到第一页）+ 清空 ======
+        if($search){
+            const onSearchInput = debounce((e)=>{
+                keyword = (e.target.value||'').trim();
+                page = 1;
+                rerender();
+            }, 200);
+            $search.addEventListener('input', onSearchInput);
+        }
+        if($clear){
+            $clear.addEventListener('click', ()=>{
+                if(!$search) return;
+                $search.value='';
+                keyword='';
+                page = 1;
+                rerender();
+                $search.focus();
+            });
+        }
+        // ====== 重置示例 ======
+        if($resetBtn){
+            $resetBtn.addEventListener('click', ()=>{
+                if(!confirm('将清空本地数据并还原示例，确认吗？')) return;
+                localStorage.removeItem(STORAGE_KEY);
+                products = [
+                    { id: crypto.randomUUID(), title:"机械键盘", brand:"Akko", price: 299, stock: 12 },
+                    { id: crypto.randomUUID(), title:"降噪耳机", brand:"Sony", price: 899, stock: 3 },
+                    { id: crypto.randomUUID(), title:"显示器", brand:"Dell", price: 1299, stock: 7 },
+                ];
+                persist();
+                rerender();
+                toast('已还原示例数据');
+            });
+        }
+        // ====== 导出 / 导入 JSON（复用你的按钮 ID） ======
+        document.getElementById('exportJSON')?.addEventListener('click', ()=>{
+            const clean = products.map(p=>({
+                id:String(p.id),
+                title:String(p.title||'').trim(),
+                brand:String(p.brand||'').trim(),
+                price:Number(p.price||0),
+                stock:Number(p.stock||0)
+            }));
+            const text = JSON.stringify(clean, null, 2);
+            navigator.clipboard.writeText(text).then(()=> toast('已复制 JSON 到剪贴板'))
+            .catch(()=>{
+                const blob = new Blob([text], { type:'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'products.json';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                toast('已下载 products.json');
+            });
+        });
+        document.getElementById('importBtn')?.addEventListener('click', ()=>{
+            document.getElementById('importFile')?.click();
+        });
+        document.getElementById('importFile')?.addEventListener('change',async (e)=>{
+            const file = e.target.files?.[0];
+            if(!file) return;
+            try{
+                const text = await file.text();
+                const arr = JSON.parse(text);
+                if(!Array.isArray(arr)) throw new Error('JSON 须为数组');
+                const mapped = arr.map(x=>({
+                    id:String(x.id||crypto.randomUUID()),
+                    title:String(x.title||'').trim(),
+                    brand:String(x.brand||'').trim(),
+                    price:Number(x.price||0),
+                    stock:Number(x.stock||0)
+                }));
+                const valid = mapped.filter(p =>
+                    p.title.length>=2 && p.title.length<=50 &&
+                    p.brand.length>=2 && p.brand.length<=50 &&
+                    Number.isFinite(p.price) && p.price>=0 &&
+                    Number.isFinite(p.stock) && p.stock>=0
+                );
+                products = valid;
+                page = 1;
+                persist();
+                rerender();
+                toast(`导入成功：共 ${valid.length} 条`);
+            }catch(err){
+                console.error(err);
+                toast('导入失败：请提供合法的 JSON 文件');
+            }
+            finally{
+                e.target.value='';
+            }
+        });
+        // ====== 初始化：默认按价格升序并显示箭头 ======
+        sortBy = 'price';
+        sortDir = 'asc';
+        rerender();
+        document.querySelector('th[data-sort="price"]').textContent += ' ↑';
+    </script>
+</body>
+</html>

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生管理系统</title>
+    <style>
+        /*基础样式*/
+        :root {
+            --bg : #f6f7fb;
+            --card : #fff;
+            --text : #1f2937;
+            --muted : #6b7280;
+            --line : #e5e7eb;
+            --primary : #2563eb;
+            --danger : #ef4444;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans SC", sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+        .app {
+            max-width: 980px;
+            margin: 40px auto;
+            padding: 24px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
+        h1 {
+            margin: 0 0 12px;
+            font-size: 24px;
+        }
+        .sub {
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+        /*表单区*/
+        form#create-form {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 16px;
+        }
+        label {
+            display: flex;
+            flex-direction: column;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        input[type="text"],input[type="number"] {
+            padding: 10px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+        input[aria-invalid="true"] {
+            border-color: #ef4444;
+        }
+        input:focus {
+            border-color: var(--primary);
+        }
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .btn-ghost {
+            background: #fff;
+            border: 1px solid var(--line);
+        }
+        /*搜索工具条*/
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin: 8px 0 16px;
+            position: relative;
+        }
+        .toolbar input[type="search"] {
+            flex: 1;
+            padding: 10px 30px 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+        .toolbar input[type="search"]:focus {
+            border-color: var(--primary);
+        }
+        .toolbar .clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 2px 6px;
+            color: #9ca3af;
+        }
+        .toolbar .clear-btn:hover {
+            color: #4b5563;
+        }
+        /*表格*/
+        .table-wrap {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+        thead th {
+            font-size: 12px;
+            text-align: left;
+            color: var(--muted);
+            background: #fafafa;
+            border-bottom: 1px solid var(--line);
+            padding: 12px;
+        }
+        tbody td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+        }
+        tbody tr:hover {
+            background: #fafcff;
+        }
+        .col-actions {
+            width: 120px;
+        }
+        /*响应式*/
+        @media (max-width : 720px) {
+            form#create-form {
+                grid-template-columns: 1fr 1fr;
+            }
+            .app {
+                margin: 16px;
+            }
+            .table-wrap {
+                overflow: auto;
+            }
+            table {
+                min-width: 640px;
+                display: block;
+            }
+        }
+        /*轻提示*/
+        .tip {
+            margin: 12px 0 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .toast {
+            position: fixed;
+            inset: auto 16px 16px auto;
+            background: #111;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: 0.25s;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <h1>学生管理系统后台<span style="font-size: 14px; color: var(--muted);">（含搜索 + 持久化）</span></h1>
+        <div class="sub">功能：显示 → 新增 → 删除 → 搜索（学生名 / 班级） → LocalStorage 持久化</div>
+        <form id="create-form">
+            <label>学生姓名
+                <input type="text" id="s-name" placeholder="例如：张三" required />
+            </label>
+            <label>班级
+                <input type="text" id="s-class" placeholder="例如：高一(3)班" required />
+            </label>
+            <label>年龄
+                <input type="number" id="s-age" placeholder="例如：16" min="6" max="100" required />
+            </label>
+            <label>成绩
+                <input type="number" id="s-score" placeholder="例如：88" min="0" max="100" step="1" required />
+            </label>
+            <button class="btn-primary" type="submit">添加学生</button>
+        </form>
+        <div class="tip">小技巧：先把功能跑通，不纠结样式；删除/新增后会自动保存并刷新表格。</div>
+        <div class="toolbar">
+            <input type="search" id="search" placeholder="搜索姓名或班级，例如：张 / 高一(3)班">
+            <button id="clearSearch" class="clear-btn" aria-label="清空搜索">×</button>
+        </div>
+        <div class="table-wrap" style="margin-top: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 64px;">#</th>
+                        <th scope="col">姓名</th>
+                        <th scope="col" style="width: 180px;">班级</th>
+                        <th scope="col" style="width: 100px;">年龄</th>
+                        <th scope="col" style="width: 120px;" data-sort="score">成绩</th>
+                        <th scope="col" class="col-actions">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+        <div style="margin-top: 10px;">
+            <button id="resetData" class="btn-ghost">重置数据（清空本地并还原示例）</button>
+        </div>
+        <div id="pager" style="margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;"></div>
+        <div id="ioBar" style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="exportJSON" class="btn-ghost">导出 JSON</button>
+            <button id="importBtn" class="btn-ghost">导入 JSON</button>
+            <input type="file" id="importFile" accept="application/json" style="display: none;">
+        </div>
+        <div class="tip">后续 Day6 将做：样式升级与移动端优化；Day7：上线到 GitHub Pages。</div>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script>
+        const STORAGE_KEY = 'sm:students:v1';
+        let students = [
+            { id: crypto.randomUUID(), name:"张三", class:"高一(1)班", age: 15, score: 88 },
+            { id: crypto.randomUUID(), name:"李四", class:"高一(3)班", age: 16, score: 92 },
+            { id: crypto.randomUUID(), name:"王五", class:"高一(2)班", age: 15, score: 75 },
+        ];
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if(saved){
+                const arr = JSON.parse(saved);
+                if(Array.isArray(arr)) students = arr;
+            }
+        }catch(e){}
+        const $tbody = document.getElementById('tbody');
+        const $form = document.getElementById('create-form');
+        const $name = document.getElementById('s-name');
+        const $class = document.getElementById('s-class');
+        const $age = document.getElementById('s-age');
+        const $score = document.getElementById('s-score');
+        const $toast = document.getElementById('toast');
+        const $search = document.getElementById('search');
+        const $clear = document.getElementById('clearSearch');
+        const $resetBtn = document.getElementById('resetData');
+
+        function toast(msg){
+            $toast.textContent = msg;
+            $toast.classList.add('show');
+            setTimeout(()=> $toast.classList.remove('show'), 1600);
+        }
+        function debounce(fn, delay=200){
+            let t;
+            return (...args)=>{
+                clearTimeout(t);
+                t=setTimeout(()=>fn(...args), delay);
+            };
+        }
+        function escapeHTML(str){
+            return String(str).replace(/[&<>\"']/g,s=>({
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;",
+                "\"":"&quot;",
+                "'":"&#39;"
+            }[s]));
+        }
+        let keyword = '';
+        let sortBy = null;
+        let sortDir = 'asc';
+        let page = 1;
+        const pageSize = 10;
+
+        function getPaged(list){
+            const total = list.length;
+            const pages = Math.max(1, Math.ceil(total / pageSize));
+            if (page > pages) page = pages;
+            const start = (page - 1) * pageSize;
+            const end = start + pageSize;
+            return {
+                total,
+                pages,
+                data: list.slice(start, end)
+            };
+        }
+        
+        function sortList(list){
+            if(!sortBy) return list;
+            const dir = sortDir === 'asc' ? 1 : -1;
+            return [...list].sort((a,b)=>{
+                const av = Number(a[sortBy] ?? 0);
+                const bv = Number(b[sortBy] ?? 0);
+                if (av === bv) return 0;
+                return av > bv ? dir : -1*dir;
+            });
+        }
+        function getFiltered(){
+            const kw = keyword.trim().toLowerCase();
+            let base = students;
+            if(kw){
+                base = students.filter(s =>
+                    String(s.name||'').toLowerCase().includes(kw) ||
+                    String(s.class||'').toLowerCase().includes(kw)
+                );
+            }
+            return sortList(base);
+        }
+        function rerender(){
+            const list = getFiltered();
+            const { total, pages, data } = getPaged(list);
+            renderTable(data);
+            renderPager(total, pages);
+        }
+        document.querySelectorAll('th[data-sort]').forEach(th=>{
+            th.style.cursor = 'pointer';
+            th.addEventListener('click', ()=>{
+                const key = th.dataset.sort;
+                if (sortBy === key) {
+                    sortDir = (sortDir === 'asc') ? 'desc' : 'asc';
+                } else {
+                    sortBy = key;
+                    sortDir = 'asc';
+                }
+                document.querySelectorAll('th[data-sort]').forEach(el=>{
+                    el.textContent = el.textContent.replace(/[↑↓]\s*$/,'');
+                });
+                th.textContent = th.textContent + (sortDir === 'asc' ? ' ↑' : ' ↓');
+
+                rerender();
+            });
+        });
+        function persist(){
+            try{
+                const clean = students.map(s=>({
+                    id: String(s.id),
+                    name: String(s.name||'').trim(),
+                    class: String(s.class||'').trim(),
+                    age: Number(s.age||0),
+                    score: Number(s.score||0)
+                }));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+            }catch(e){}
+        }
+        function renderTable(list){
+            if(!Array.isArray(list)) list = [];
+            if(list.length===0){
+                $tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">暂无学生</td></tr>`;
+                return;
+            }
+            $tbody.innerHTML = list.map((s,idx)=>`
+                <tr>
+                    <td>${(page-1)*pageSize + idx + 1}</td>
+                    <td data-edit="name" data-id="${s.id}">${escapeHTML(s.name)}</td>
+                    <td data-edit="class" data-id="${s.id}">${escapeHTML(s.class)}</td>
+                    <td>${Number(s.age||0)}</td>
+                    <td>${Number(s.score||0)}</td>
+                    <td>
+                        <button class="btn-ghost" data-action="del" data-id="${s.id}" aria-label="删除：${escapeHTML(s.name)}">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        function renderPager(total, pages){
+            const $p = document.getElementById('pager');
+            if(!$p) return;
+            $p.innerHTML = `
+                <button class="btn-ghost" id="prevPage" ${page<=1 ? 'disabled' : ''}>上一页</button>
+                <span class="tip">第 ${page} / ${pages} 页（共 ${total} 条）</span>
+                <button class="btn-ghost" id="nextPage" ${page>=pages ? 'disabled' : ''}>下一页</button>
+            `;
+            document.getElementById('prevPage')?.addEventListener('click', ()=>{
+                if(page > 1){
+                    page--;
+                    rerender();
+                }
+            });
+            document.getElementById('nextPage')?.addEventListener('click', ()=>{
+                if(page < pages){
+                    page++;
+                    rerender();
+                }
+            });
+        }
+        $tbody.addEventListener('click', (e)=>{
+            const btn = e.target.closest('button[data-action="del"]');
+            if(!btn) return;
+            const id = btn.dataset.id;
+            const index = students.findIndex(s=> String(s.id)===String(id));
+            if(index>-1){
+                if(!confirm('确认删除该学生吗？')) return;
+                students.splice(index,1);
+                persist();
+                rerender();
+                toast('已删除');
+            }
+        });
+        $form.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const name = $name.value.trim().replace(/\s+/g,' ');
+            const klass = $class.value.trim().replace(/\s+/g,' ');
+            const age = Number(($age.value||'').trim());
+            const score = Number(($score.value||'').trim());
+
+            [$name,$class,$age,$score].forEach(el=>
+                el.removeAttribute('aria-invalid')
+            );
+            let ok = true;
+            if(name.length<2 || name.length>50){
+                $name.setAttribute('aria-invalid','true');
+                ok=false;
+            }
+            if(!klass){
+                $class.setAttribute('aria-invalid','true');
+                ok=false;
+            }
+            if(!Number.isFinite(age) || age<6 || age>100){
+                $age.setAttribute('aria-invalid','true');
+                ok=false;
+            }
+            if(!Number.isFinite(score) || score<0 || score>100){
+                $score.setAttribute('aria-invalid','true');
+                ok=false;
+            }
+            if(!ok){
+                ($name.getAttribute('aria-invalid')==='true' && $name.focus()) ||
+                ($class.getAttribute('aria-invalid')=== 'true' && $class.focus()) ||
+                ($age.getAttribute('aria-invalid')=== 'true' && $age.focus()) ||
+                $score.focus();
+                toast('请检查表单：姓名2~50字；班级必填；年龄6~100；成绩0~100');
+                return;
+            }
+            students.push({
+                id: crypto.randomUUID(),
+                name,
+                class: klass,
+                age,
+                score
+            });
+            $form.reset();
+            page = 1;
+            persist();
+            rerender();
+            toast('已添加');
+        });
+        let editing = null;
+        $tbody.addEventListener('click', (e)=>{
+            const cell = e.target.closest('td[data-edit]');
+            if(!cell) return;
+            const id = cell.dataset.id;
+            const field = cell.dataset.edit;
+            if (editing && (editing.id!==id || editing.field!==field)) finishEdit(false);
+            startEdit(cell, id, field);
+        });
+        function startEdit(cell, id, field){
+            editing = {
+                id, field
+            };
+            const prev = cell.textContent.trim();
+            cell.dataset.prev = prev;
+            cell.innerHTML = `<input class="cell-input" value="${prev.replace(/"/g,'&quot;')}" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px">`;
+            const input = cell.querySelector('input');
+            input.focus();
+            input.select();
+            input.addEventListener('keydown', (e)=>{
+                if(e.key === 'Enter'){
+                    finishEdit(true);
+                }
+                if(e.key === 'Escape'){
+                    finishEdit(false);
+                }
+            });
+            input.addEventListener('blur', ()=> finishEdit(true), { once:true });
+        }
+        function finishEdit(save){
+            if(!editing) return;
+            const { id, field } = editing;
+            const cell = $tbody.querySelector(`td[data-edit="${field}"][data-id="${id}"]`);
+            const input = cell?.querySelector('input');
+            const prev = cell?.dataset.prev || '';
+            let next = input ? input.value.trim().replace(/\s+/g,' ') : prev;
+            if(save){
+                if(field==='name' && (next.length<2 || next.length>50)){
+                    toast('姓名需2~50字');
+                    next = prev;
+                    save = false;
+                }
+                if(field==='class' && !next){
+                    toast('班级必填');
+                    next = prev;
+                    save = false;
+                }
+            }
+            cell.innerHTML = escapeHTML(String(next));
+            if(save){
+                const item = students.find(x=> String(x.id)===String(id));
+                item[field] = next;
+                persist();
+                toast('已保存');
+            }
+            editing = null;
+        }
+        if($search){
+            const onSearchInput = debounce((e)=>{
+                keyword = (e.target.value||'').trim();
+                page = 1;
+                rerender();
+            }, 200);
+            $search.addEventListener('input', onSearchInput);
+        }
+        if($clear){
+            $clear.addEventListener('click', ()=>{
+                if(!$search) return;
+                $search.value='';
+                keyword='';
+                page = 1;
+                rerender();
+                $search.focus();
+            });
+        }
+        if($resetBtn){
+            $resetBtn.addEventListener('click', ()=>{
+                if(!confirm('将清空本地数据并还原示例，确认吗？')) return;
+                localStorage.removeItem(STORAGE_KEY);
+                students = [
+                    { id: crypto.randomUUID(), name:"张三", class:"高一(1)班", age: 15, score: 88},
+                    { id: crypto.randomUUID(), name:"李四", class:"高一(3)班", age: 16, score: 92},
+                    { id: crypto.randomUUID(), name:"王五", class:"高一(2)班", age: 15, score: 75},
+                ];
+                persist();
+                rerender();
+                toast('已还原示例数据');
+            });
+        }
+        document.getElementById('exportJSON')?.addEventListener('click', ()=>{
+            const clean = students.map(s => ({
+                id: String(s.id),
+                name: String(s.name||'').trim(),
+                class: String(s.class||'').trim(),
+                age: Number(s.age||0),
+                score: Number(s.score||0)
+            }));
+            const text = JSON.stringify(clean, null, 2);
+            navigator.clipboard.writeText(text).then(()=>{
+                toast('已复制JSON到剪贴板');
+            }).catch(()=>{
+                const blob = new Blob([text], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'students.json';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                toast('已下载 students.json');
+            });
+        });
+        document.getElementById('importBtn')?.addEventListener('click', ()=>{
+            document.getElementById('importFile')?.click();
+        });
+        document.getElementById('importFile')?.addEventListener('change', async (e)=>{
+            const file = e.target.files?.[0];
+            if(!file) return;
+            try{
+                const text = await file.text();
+                const arr = JSON.parse(text);
+                if(!Array.isArray(arr)) throw new Error('JSON 须为数组');
+                const mapped = arr.map(x =>({
+                    id: String(x.id || crypto.randomUUID()),
+                    name: String(x.name||'').trim(),
+                    class: String(x.class||'').trim(),
+                    age: Number(x.age||0),
+                    score: Number(x.score||0)
+                }));
+                const valid = mapped.filter(s =>
+                    s.name.length >= 2 && s.name.length <= 50 &&
+                    Number.isFinite(s.age) && s.age >= 0 && s.age <= 150 &&
+                    Number.isFinite(s.score) && s.score >= 0 && s.score <= 100
+                );
+                students = valid;
+                page = 1;
+                persist();
+                rerender();
+                toast(`导入成功：共 ${valid.length} 条`);
+            }catch(err){
+                console.error(err);
+                toast('导入失败：请提供合法的JSON文件');
+            }finally{
+                e.target.value = '';
+            }
+        });
+        sortBy = 'score';
+        sortDir = 'asc';
+        rerender();
+        document.querySelector('th[data-sort="score"]').textContent += ' ↑';
+    </script>
+</body>
+</html>
