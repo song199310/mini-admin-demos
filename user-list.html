@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户列表</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 40px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .status.normal {
+            color: green;
+        }
+        .status.disabled {
+            color: red;
+        }
+        .btn {
+            padding: 6px 12px;
+            background: linear-gradient(to right, #3f51b5, #5c6bc0);
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 0 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            transition: background 0.3s ease;
+        }
+        .btn:hover {
+            background: linear-gradient(to right, #303f9f, #3949ab);
+        }
+        .empty-msg {
+            font-size: 18px;
+            color: #999;
+            margin-top: 20px;
+        }
+        .search-input {
+            margin-top: 20px;
+            padding: 8px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>用户列表</h1>
+    <a href="add-user.html" class="btn">添加新用户</a>
+    <table>
+        <thead>
+            <tr>
+                <th>用户名</th>
+                <th>邮箱</th>
+                <th>注册时间</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="userbody">
+            <tr>
+                <td>zhangsan</td>
+                <td>zhangsan@example.com</td>
+                <td>2025-07-28</td>
+                <td class="status normal">正常</td>
+                <td>
+                    <button class="btn" onclick="editUser('zhangsan')">编辑</button>
+                    <button class="btn">删除</button>
+                    <button class="btn" onclick="viewUser('zhangsan')">查看</button>
+                </td>
+            </tr>
+            <tr>
+                <td>lisi</td>
+                <td>lisi@example.com</td>
+                <td>2025-07-25</td>
+                <td class="status disabled">禁用</td>
+                <td>
+                    <button class="btn" onclick="editUser('lisi')">编辑</button>
+                    <button class="btn" onclick="confirmDelete(this)">删除</button>
+                    <button class="btn" onclick="viewUser('lisi')">查看</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <input type="text" id="searchInput" class="search-input" placeholder="搜索用户名"  onkeyup="filterUsers()">
+    <p id="emptyMsg" class="empty-msg">暂无用户数据</p>
+    <script>
+        function editUser(username) {
+            location.href = `edit-user.html?username=${username}`;
+        }
+        function confirmDelete(btn) {
+            if (confirm("确定要删除这个用户吗？")) {
+                btn.closest("tr").remove();
+            }
+        }
+        function confirmDelete(btn) {
+            if (confirm("确定要删除这个用户吗？")) {
+                const row = btn.closest("tr");
+                row.remove();
+                if (document.querySelectorAll("tbody tr").length === 0) {
+                    document.getElementById("emptyMsg").style.display = "block";
+                    filterUsers();
+                }
+            }
+        }
+        function updateTableVisibility() {
+            const table = document.querySelector("table");
+            const visibleRows = [...document.querySelectorAll("#userbody tr")].filter(row => row.style.display !== "none");
+            if (visibleRows.length === 0) {
+                table.style.display = "none";
+            } else {
+                table.style.display = "table";
+            }
+        }
+        function filterUsers() {
+            const input = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#userbody tr");
+            let hasVisible = false;
+            rows.forEach(row => {
+                const username = row.cells[0].textContent.toLowerCase();
+                const visible = username.includes(input);
+                row.style.display = visible ? "" : "none";
+                if (visible) hasVisible = true;
+            });
+            document.getElementById("emptyMsg").style.display = hasVisible ? "none" : "block";
+            updateTableVisibility();
+        }
+        function viewUser(username) {
+            alert(`查看用户 ${username}`);
+        }
+        function formatDate() {
+            document.querySelectorAll("#userbody tr").forEach(row => {
+                const dataCell = row.cells[2];
+                const rawDate = new Date(dataCell.textContent);
+                dataCell.textContent = rawDate.toLocaleDateString('zh-CN');
+            });
+        }
+        window.onload = function() {
+            document.getElementById("emptyMsg").style.display = "none";
+            formatDate();
+        }
+    </script>
+</body>
+</html>

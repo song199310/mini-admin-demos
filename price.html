@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品价格计算·v1</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system,Segoe UI,Roboto,Helvetica,Arial;
+            padding: 24px;
+            background: #f7f9fc;
+        }
+        h1 {
+            margin: 0 0 16px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            max-width: 800px;
+            margin: auto;
+        }
+        .row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .row > * {
+            flex: 1;
+            min-width: 160px;
+        }
+        input, select, button {
+            padding: 10px 12px;
+            border: 1px solid #d9dfe7;
+            border-radius: 8px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #6aa3ff;
+        }
+        button {
+            background: #2f7cff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            filter: brightness(0.95);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            background: #fff;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #eef1f6;
+            text-align: center;
+        }
+        tfoot td {
+            font-weight: 700;
+        }
+        .danger {
+            background: #ff4d4f;
+        }
+        .danger:hover {
+            filter: brightness(0.95);
+        }
+        .muted {
+            color: #64748b;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>商品价格计算·v1</h1>
+
+        <div class="row" style="margin-bottom: 12px;">
+            <input type="text" id="name" placeholder="商品名称（如：安全帽）" />
+            <input type="number" id="price" min="0" step="0.01" placeholder="单价（￥）" />
+            <input type="number" id="qty" min="1" step="1" placeholder="数量" />
+            <input id="subtotal" placeholder="小计（自动）" disabled />
+            <button id="addBtn">添加到表格</button>
+        </div>
+        <div class="muted">提示：输入单价或数量时，小计会自动更新；按回车也能快速添加。</div>
+        <table id="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>商品名称</th>
+                    <th>单价（￥）</th>
+                    <th>数量</th>
+                    <th>小计（￥）</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" style="text-align: right;">总金额：</td>
+                    <td id="grandTotal">0.00</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <script>
+        const items = [];
+        
+        const elName = document.getElementById('name');
+        const elPrice = document.getElementById('price');
+        const elQty = document.getElementById('qty');
+        const elSubtotal = document.getElementById('subtotal');
+        const elAdd = document.getElementById('addBtn');
+        const tbody = document.querySelector('#table tbody');
+        const elGrand = document.getElementById('grandTotal');
+
+        const fmt = n => (Number.isFinite(+n) ? (+n).toFixed(2) : '0.00');
+        function updateSubtotal() {
+            const p = parseFloat(elPrice.value);
+            const q = parseInt(elQty.value, 10);
+            if (!isNaN(p) && !isNaN(q) && p >= 0 && q > 0) {
+                elSubtotal.value = fmt(p * q);
+            } else {
+                elSubtotal.value = '';
+            }
+        }
+        function render() {
+            tbody.innerHTML = '';
+            items.forEach((it, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${it.name}</td>
+                    <td>${fmt(it.price)}</td>
+                    <td>${it.qty}</td>
+                    <td>${fmt(it.price * it.qty)}</td>
+                    <td><button class="danger" data-index="${idx}">删除</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            tbody.querySelectorAll('.danger').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const i = parseInt(btn.dataset.index, 10);
+                    items.splice(i, 1);
+                    render();
+                });
+            });
+            const total = items.reduce((sum, it) => sum + it.price * it.qty, 0);
+            elGrand.textContent = fmt(total);
+        }
+        function addItem() {
+            const name = elName.value.trim();
+            const price = parseFloat(elPrice.value);
+            const qty = parseInt(elQty.value, 10);
+            if (!name) return alert('请填写商品名称');
+            if (isNaN(price) || price < 0) return alert('请填写正确的单价');
+            if (isNaN(qty) || qty <= 0) return alert('请填写正确的数量');
+            items.push({ name, price, qty});
+            render();
+            elName.value = '';
+            elPrice.value = '';
+            elQty.value = '';
+            elSubtotal.value = '';
+            elName.focus();
+        }
+        elPrice.addEventListener('input', updateSubtotal);
+        elQty.addEventListener('input', updateSubtotal);
+        elAdd.addEventListener('click', addItem);
+        [elName, elPrice, elQty].forEach(el => {
+            el.addEventListener('keydown', e => {
+                if (e.key === 'Enter') addItem();
+            });
+        });
+        elName.focus();
+    </script>
+</body>
+</html>

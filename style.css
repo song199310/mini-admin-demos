@@ -1,0 +1,89 @@
+/* 通用页面基础样式 */
+body {
+  margin: 0;
+  font-family: sans-serif;
+  line-height: 1.6;
+}
+
+/* 顶部导航栏 */
+.top-nav {
+  background-color: #4a90e2;
+  padding: 12px 24px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.top-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.top-nav a:hover {
+  color: #d3e8ff;
+}
+
+/* 主容器通用布局 */
+.container {
+  max-width: 800px;
+  margin: 100px auto;
+  padding:20px;
+}
+
+/* 卡片列表布局 */
+.card-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* 卡片结构 */
+.card {
+  width: 300px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 200px;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.card button {
+  padding: 8px 16px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.card button:hover {
+  background-color: #357ab8;
+  transform: scale(1.05);
+}

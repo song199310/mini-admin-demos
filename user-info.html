@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户信息一览</title>
+    <style>
+        @media (max-width: 600px) {
+            .info-table th, .info-table td {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        .top-nav {
+            background-color: #3f51b5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .info-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .info-table thead {
+            background-color: #f0f0f0;
+        }
+        .info-table th, .info-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        .info-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .status-verified {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header class="top-nav">
+        <h1>用户信息一览</h1>
+    </header>
+    <main class="info-container">
+        <table class="info-table">
+            <thead>
+                <tr>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                    <th>注册时间</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>xiaoming</td>
+                    <td>xiaoming@example.com</td>
+                    <td>2025年7月28日</td>
+                    <td class="status-verified">已验证</td>
+                </tr>
+                <tr>
+                    <td>xiaoli</td>
+                    <td>xiaoli@example.com</td>
+                    <td>2025年7月25日</td>
+                    <td class="status-verified">已验证</td>
+                </tr>
+                <tr>
+                    <td>xiaoma</td>
+                    <td>xiaoma@example.com</td>
+                    <td>2025年7月20日</td>
+                    <td class="status-verified">已验证</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>

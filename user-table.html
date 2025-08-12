@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户列表分页</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px 20px;
+            background-color: #f5f7fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 24px 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        #addUserBtn {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        #addUserBtn:hover {
+            background-color: #218838;
+        }
+        #searchInput {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        #rowsSelector {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        thead {
+            background-color: #007bff;
+            color: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .deleteBtn {
+            padding: 6px 14px;
+            background-color: #e53935;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .deleteBtn:hover {
+            background-color: #c62828;
+        }
+        .pagination {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .pagination button.active {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            border-color: #007bff;
+        }
+        .pagination button:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="addUserBtn" style="float: right; margin-bottom: 12px;">➕ 添加用户</button>
+        <div id="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 999;">
+            <div style="background: white; padding: 24px; width: 300px; margin: 120px auto; border-radius: 12px; position: relative;">
+                <h3 style="margin-top: 0;">添加用户</h3>
+                <input id="nameInput" placeholder="姓名" style="width: 100%; margin-bottom: 10px; padding: 6px;"><br>
+                <input id="ageInput" type="number" placeholder="年龄" style="width: 100%; margin-bottom: 10px; padding: 6px;"><br>
+                <input type="email" id="emailInput" placeholder="邮箱" style="width: 100%; margin-bottom: 14px; padding: 6px;"><br>
+                <button id="confirmAdd" style="background-color: #007bff; color: white; padding: 6px; border: none; border-radius: 6px; cursor: pointer;">确认添加</button>
+                <button id="cancelAdd" style="margin-left: 10px; padding: 6px 14px;">取消</button>
+            </div>
+        </div>
+
+        <h2>用户列表</h2>
+        <input type="text" class="search-input" id="searchInput" placeholder="搜索姓名或邮箱" />
+        <div style="margin-bottom: 12px;">
+            <span id="totalCount">共 0 条数据</span>
+            <label style="margin-left: 20px;">
+                每页显示：
+                <select id="rowsSelector">
+                    <option value="5">5 条</option>
+                    <option value="10" selected>10 条</option>
+                    <option value="20">20 条</option>
+                </select>
+            </label>
+        </div>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>姓名</th>
+                    <th>年龄</th>
+                    <th>邮箱</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div id="pagination" class="pagination"></div>
+    </div>
+    <script>
+        const userData = [];
+        for (let i = 1; i <= 100; i++) {
+            userData.push({
+                id: i,
+                name: `用户${i}`,
+                age: 20 + (i % 10),
+                email: `user${i}@example.com`
+            });
+        }
+        let rowsPerPage = 10;
+        let currentPage = 1;
+        let filteredData = [...userData];
+
+        function displayTable(data, page) {
+            const tableBody = document.querySelector("#userTable tbody");
+            tableBody.innerHTML = "";
+            document.getElementById("totalCount").innerText = `共 ${data.length} 条数据`;
+
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageData = data.slice(start, end);
+
+            for (let user of pageData) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.age}</td>
+                    <td>${user.email}</td>
+                    <td><button class="deleteBtn" data-id="${user.id}">删除</button></td>
+                `;
+                tableBody.appendChild(row);
+            }
+            const deleteButtons = document.querySelectorAll(".deleteBtn");
+            deleteButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const id = parseInt(this.dataset.id);
+                    const indexInAll = userData.findIndex(user => user.id === id);
+                    if (indexInAll !== -1) userData.splice(indexInAll,1);
+
+                    const indexInFiltered = filteredData.findIndex(user => user.id === id);
+                    if (indexInFiltered !== -1) filteredData.splice(indexInFiltered, 1);
+
+                    const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+                    if (currentPage > totalPages) currentPage = totalPages || 1;
+
+                    displayTable(filteredData, currentPage);
+                    setupPagination(filteredData);
+                });
+            });
+        }
+
+        function setupPagination(data) {
+            const pagination = document.getElementById("pagination");
+            pagination.innerHTML = "";
+
+            const pageCount = Math.ceil(data.length / rowsPerPage);
+            for (let i = 1; i <= pageCount; i++) {
+                const btn = document.createElement("button");
+                btn.textContent = i;
+                if (i === currentPage) btn.classList.add("active");
+
+                btn.addEventListener("click", function () {
+                    currentPage = i;
+                    displayTable(filteredData, currentPage);
+                    setupPagination(filteredData);
+                });
+
+                pagination.appendChild(btn);
+            }
+        }
+
+
+        document.getElementById("searchInput").addEventListener("input", function () {
+            const keyword = this.value.trim().toLowerCase();
+            filteredData = userData.filter(user =>
+                user.name.toLowerCase().includes(keyword) ||
+                user.email.toLowerCase().includes(keyword)
+            );
+            currentPage = 1;
+            displayTable(filteredData, currentPage);
+            setupPagination(filteredData);
+        });
+        displayTable(filteredData, currentPage);
+        setupPagination(filteredData);
+
+        document.getElementById("rowsSelector").addEventListener("change", function () {
+            rowsPerPage = parseInt(this.value);
+            currentPage = 1;
+            displayTable(filteredData, currentPage);
+            setupPagination(filteredData);
+        });
+
+        document.getElementById("addUserBtn").addEventListener("click", function () {
+            document.getElementById("modal").style.display = "block";
+        });
+
+        document.getElementById("cancelAdd").addEventListener("click", function () {
+            document.getElementById("modal").style.display = "none";
+        });
+
+        document.getElementById("confirmAdd").addEventListener("click", function () {
+            const name = document.getElementById("nameInput").value.trim();
+            const age = parseInt(document.getElementById("ageInput").value.trim());
+            const email = document.getElementById("emailInput").value.trim();
+
+            if (!name || isNaN(age) || !email) {
+                alert("请完整填写信息");
+                return;
+            }
+
+            const newId = userData.length > 0 ? Math.max(...userData.map(u => u.id)) + 1 : 1;
+            const newUser = { id: newId, name, age, email};
+
+            userData.push(newUser);
+
+            const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
+            if (!keyword || name.toLowerCase().includes(keyword) || email.toLowerCase().includes(keyword)) {
+                filteredData.push(newUser);
+            }
+            document.getElementById("modal").style.display = "none";
+            document.getElementById("nameInput").value = "";
+            document.getElementById("ageInput").value = "";
+            document.getElementById("emailInput").value = "";
+
+            currentPage = Math.ceil(filteredData.length / rowsPerPage);
+            displayTable(filteredData, currentPage);
+            setupPagination(filteredData);
+        });
+    </script>
+</body>
+</html>

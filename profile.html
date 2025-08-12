@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户信息页</title>
+    <style>
+        .profile-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            background-color: #fff;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .edit-btn {
+            margin-top: 20px;
+            padding: 10px 30px;
+            background-color: #409eff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .edit-btn:hover {
+            background-color: #66b1ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <img src="https://via.placeholder.com/101" alt="用户头像" class="avatar">
+        <h2>昵称：小明</h2>
+        <p>性别：男</p>
+        <p>生日：2000-01-01</p>
+        <p>邮箱：xiaoming@example.com</p>
+        <a href="register.html" class="edit-btn">修改信息</a>
+    </div>
+</body>
+</html>
