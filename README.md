@@ -1,35 +1,30 @@
-# Mini Admin Demos
+# ​ 前端网页开发 · 小项目接单 🚀  
+**快速定制 · 按需开发 · 准时交付**  
+适合个人、小商铺、创业团队的网页展示与管理系统
 
-这是一个包含多个小型后台管理系统示例的前端项目，适合前端学习和功能演示。项目包含首页入口以及两个独立的模块：学生管理系统和商品库存管理系统。
+---
 
-## 项目结构
-mini-admin-demos/  
-├── index.html # 入口页面，展示项目模块入口  
-├── student-management/ # 学生管理系统  
-│   ├── index.html # 页面结构  
-│   ├── style.css # 页面样式  
-│   └── main.js # 页面交互逻辑  
-└── product-inventory/ # 商品库存管理系统  
-    ├── index.html # 页面结构  
-    ├── style.css # 页面样式  
-    └── main.js # 页面交互逻辑
+## ​ 可制作内容  
+- 🌐 响应式网页首页（适配电脑和手机）  
+- 🎓 学生管理系统（增删改查 + 搜索 + 导出）  
+- 📦 商品库存管理系统（低库存高亮 + 搜索）  
+- 🛠 其他简易管理后台
 
-## 模块介绍
-### 1. 首页（index.html）
-- 展示学生管理系统与商品库存管理系统的入口链接  
-- 简洁布局，便于快速导航到各功能模块  
+---
 
-### 2. 学生管理系统（student-management）
-- **功能**：添加、删除、修改、查询学生信息  
-- **技术栈**：HTML + CSS + JavaScript  
-- **结构**：`index.html`（页面结构）、`style.css`（样式）、`main.js`（逻辑）  
+## ​ 价格区间  
+**￥100 ~ ￥500 / 单**  
+> 根据功能复杂度与交付时间协商
 
-### 3. 商品库存管理系统（product-inventory）
-- **功能**：添加商品、更新库存、删除商品、搜索商品  
-- **技术栈**：HTML + CSS + JavaScript  
-- **结构**：`index.html`（页面结构）、`style.css`（样式）、`main.js`（逻辑）  
+---
 
-## 使用方法
-1. 下载或克隆项目到本地  
-2. 打开 `index.html` 查看首页  
-3. 点击对应模块进入相应的管理系统页面
+## ​ 我的作品  
+- 🎓 [学生管理系统（支持搜索与数据导出）](https://song199310.github.io/mini-admin-demos/student-management.html)  
+- 📦 [商品库存管理系统（低库存提醒）](https://song199310.github.io/mini-admin-demos/goods-stock.html)
+
+---
+
+## ​ 联系方式  
+- 微信：**扫码添加，快速沟通需求**  
+  ![微信二维码](https://raw.githubusercontent.com/song199310/mini-admin-demos/main/wechat-qrcode.jpg)
+  承诺：24h 内响应，支持先出草稿图，满意后再确认付款。

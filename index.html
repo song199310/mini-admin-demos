@@ -1,97 +1,56 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>作品集·迷你后台</title>
-    <style>
-        :root{
-            --bg:#f6f7fb;
-            --card:#fff;
-            --text:#1f2937;
-            --muted:#6b7280;
-            --line:#e5e7eb;
-            --primary:#2563eb;
-        }
-        *{
-            box-sizing: border-box;
-        }
-        body{
-            margin: 0;
-            font-family: system-ui,-apple-system,Segoe UI,roboto,Helvetica,Arial,"Noto Sans SC",sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-        }
-        .wrap{
-            max-width: 980px;
-            margin: 40px auto;
-            padding: 24px;
-        }
-        h1{
-            margin: 0 0 8px;
-        }
-        .sub{
-            color: var(--muted);
-            margin-bottom: 16px;
-        }
-        .grid{
-            display: grid;
-            grid-template-columns: repeat(2,1fr);
-            gap: 16px;
-        }
-        .card{
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            padding: 16px;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            transition: box-shadow 0.2s,transform 0.2s;
-        }
-        .card:hover{
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-            transform: translateY(-2px);
-        }
-        .tag{
-            display: inline-block;
-            font-size: 12px;
-            color: #fff;
-            background: var(--primary);
-            padding: 2px 8px;
-            border-radius: 999px;
-        }
-        .footer{
-            margin-top: 20px;
-            color: var(--muted);
-            font-size: 12px;
-        }
-        @media (max-width:720px){
-            .grid{
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Admin · 前端小作品集（学生/库存管理演示）</title>
+  <meta property="og:title" content="Mini Admin · 前端小作品集（学生/库存管理演示）" />
+  <meta property="og:description" content="学生管理系统与商品库存管理在线演示，支持搜索、分页、导入导出。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://song199310.github.io/mini-admin-demos/" />
+  <link rel="icon" href="./favicon.ico" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-    <div class="wrap">
-        <h1>迷你后台作品集</h1>
-        <div class="sub">原生 HTML/CSS/JS · 本地持久化 · 搜索/排序/分页 · 导入/导出</div>
-        <div class="grid">
-            <a class="card" href="./student-management.html" target="_self" rel="noopener">
-                <span class="tag">学生管理</span>
-                <h3 style="margin: 0;">学生管理系统</h3>
-                <p class="sub">增删改查·搜索（姓名/班级）·成绩排序·分页·导入/导出 JSON</p>
-            </a>
-            <a class="card" href="./goods-stock.html" target="_self" rel="noopener">
-                <span class="tag">库存管理</span>
-                <h3 style="margin: 0;">商品库存管理</h3>
-                <p class="sub">增删改查·搜索（名称/品牌）·价格排序·低库存标红·分页·导入/导出</p>
-            </a>
-        </div>
-        <div class="footer">© 2025 侘寂 · 原生前端小作品集</div>
-    </div>
+  <nav>
+    <span class="brand">Mini Admin</span>
+    <a href="./index.html" aria-current="page">首页</a>
+    <a href="./student-management.html">学生管理</a>
+    <a href="./goods-stock.html">商品库存</a>
+    <span style="margin-left:auto" class="muted" aria-hidden="true">在线演示</span>
+  </nav>
+
+  <main class="wrap">
+    <header>
+      <h1 style="margin:8px 0 4px">Mini Admin Demos</h1>
+      <p class="sub" style="margin:0">学生管理 & 商品库存管理 · 原生 HTML/CSS/JS · 搜索/排序/分页 · 导入导出</p>
+    </header>
+
+    <section class="section" style="margin-top:16px">
+      <h2>我的作品</h2>
+      <div class="grid">
+        <a class="card" href="./student-management.html">
+          <span class="tag">学生管理</span>
+          <h3 style="margin:8px 0 4px">Student Management</h3>
+          <p class="muted" style="margin:0">增删改查 · 关键词搜索 · 成绩排序 · JSON 导入导出</p>
+        </a>
+        <a class="card" href="./goods-stock.html">
+          <span class="tag">库存管理</span>
+          <h3 style="margin:8px 0 4px">Goods Stock</h3>
+          <p class="muted" style="margin:0">名称搜索 · 价格排序 · 低库存高亮 · JSON 导入导出</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="section contact" style="margin-top:24px">
+      <h2>联系我</h2>
+      <p class="muted">添加微信咨询项目需求（24h 内响应，支持先出样稿）</p>
+      <img class="qrcode"
+           src="https://raw.githubusercontent.com/song199310/mini-admin-demos/main/wechat-qrcode.jpg"
+           alt="微信二维码" loading="lazy" width="180" height="180">
+    </section>
+  </main>
+
+  <footer>© 2025 前端小作品集</footer>
 </body>
 </html>
