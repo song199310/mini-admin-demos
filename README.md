@@ -1,44 +1,26 @@
-# 👨‍💻 前端开发 · 小项目接单
+##  前端小项目 · 接单展示
 
-你好，我是 **前端开发自由职业者**，专注于小型管理系统与网页展示开发。  
-我能帮你把需求快速落地，做出清晰易用、响应式的网页应用。  
+🧰 **服务内容：**
+| 场景 | 说明 |
+|------|------|
+| 展示页 / 活动页 | HTML + CSS + JS 纯前端，无框架轻快上线 |
+| 后台管理小模块 | 表格增删改查、搜索、分页、JSON 导入导出 |
+| 移动端适配 | 手机和平板也能正常使用 |
 
----
+💰 **价格区间：**  
+小功能需求起步价：**￥100**  
+完整小型系统：**￥300–500/单**（根据功能复杂度协商）
 
-## 💡 我的优势
-- ⚡ **快速上线**：1~3 天即可交付小项目  
-- 🎯 **定制化开发**：按你的需求量身设计功能  
-- 📱 **兼容性好**：支持电脑 & 手机端浏览  
-- 🔒 **诚信可靠**：先出草稿，满意再确认付款  
+⏱ **交付方式：**  
+先出草稿/原型，确认后付款，效率优先，沟通顺畅
 
----
+**在线演示：**  
+- [首页入口](https://song199310.github.io/mini-admin-demos/)  
+- [学生管理系统](https://song199310.github.io/mini-admin-demos/student-management.html)  
+- [商品库存系统](https://song199310.github.io/mini-admin-demos/goods-stock.html)  
 
-## 🛠 技能领域
-- HTML / CSS / JavaScript 基础前端开发  
-- 响应式网页设计（适配 PC 和移动端）  
-- 学生 / 库存 / 简单后台管理系统  
-- 数据导出、低库存提醒等实用功能  
-
----
-
-## 💼 项目案例
-- 🎓 [学生管理系统](https://song199310.github.io/mini-admin-demos/student-management.html)  
-  > 支持学生信息增删改查、搜索、导出 JSON  
-- 📦 [商品库存管理系统](https://song199310.github.io/mini-admin-demos/goods-stock.html)  
-  > 库存列表展示，低库存商品高亮提醒  
+**联系我：**  
+扫码添加微信 → 私聊需求  
+<img src="https://raw.githubusercontent.com/song199310/mini-admin-demos/main/wechat-qrcode.jpg" width="160" alt="微信二维码" />
 
 ---
-
-## 💰 服务价格
-- 小功能需求：**￥100 起**  
-- 完整小型管理系统：**￥300 ~ ￥500**  
-> 具体价格视需求复杂度而定，可沟通调整  
-
----
-
-## 📞 联系方式
-- 微信：**扫码添加 → 快速沟通需求**  
-  ![微信二维码](https://raw.githubusercontent.com/song199310/mini-admin-demos/main/wechat-qrcode.jpg)  
-
----
-✨ **承诺：24 小时内响应需求，准时交付**  
