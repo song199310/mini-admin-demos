@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="前端小项目在线演示：学生管理与商品库存，支持搜索、排序、导入导出。可在1–3天交付在线预览与源码。">
   <title>Mini Admin · 前端小作品集（学生/库存管理演示）</title>
   <meta property="og:title" content="Mini Admin · 前端小作品集（学生/库存管理演示）" />
-  <meta property="og:description" content="学生管理系统与商品库存管理在线演示，支持搜索、分页、导入导出。" />
+  <meta property="og:description" content="学生管理系统与商品库存管理在线演示，支持搜索、排序、导入导出。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://song199310.github.io/mini-admin-demos/" />
   <link rel="icon" href="./favicon.ico" />
@@ -18,12 +19,13 @@
     <a href="./student-management.html">学生管理</a>
     <a href="./goods-stock.html">商品库存</a>
     <span style="margin-left:auto" class="muted" aria-hidden="true">在线演示</span>
+    <button class="pri" style="margin-left: 8px;" onclick="location.hash='contact'">立即联系</button>
   </nav>
 
   <main class="wrap">
     <header>
       <h1 style="margin:8px 0 4px">Mini Admin Demos</h1>
-      <p class="sub" style="margin:0">学生管理 & 商品库存管理 · 原生 HTML/CSS/JS · 搜索/排序/分页 · 导入导出</p>
+      <p class="sub" style="margin:0">学生管理 & 商品库存管理 · 原生 HTML/CSS/JS · 搜索/排序 · 导入导出</p>
     </header>
 
     <section class="section" style="margin-top:16px">
@@ -42,7 +44,7 @@
       </div>
     </section>
 
-    <section class="section contact" style="margin-top:24px">
+    <section id="contact" class="section contact" style="margin-top:24px">
       <h2>联系我</h2>
       <p class="muted">添加微信咨询项目需求（24h 内响应，支持先出样稿）</p>
       <img class="qrcode"
