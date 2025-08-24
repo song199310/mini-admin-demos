@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nova — 响应式前端着陆页</title>
+  <meta name="description" content="极速、像素级还原、移动优先的前端着陆页示例。" />
+  <style>
+    :root{
+      --bg:#0b1220; --bg2:#0f172a; --muted:#94a3b8; --txt:#e5e7eb;
+      --brand:#22c55e; --brand2:#8b5cf6; --border:#1f2937; --accent:#0ea5e9;
+      --container: 1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--txt);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    a{color:var(--accent);text-decoration:none}
+    .container{max-width:var(--container);margin:0 auto;padding:0 20px}
+
+    /* 顶部导航 */
+    header{position:sticky;top:0;background:rgba(11,18,32,.7);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--border);z-index:10}
+    .nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .brand{display:flex;gap:10px;align-items:center;font-weight:700}
+    .brand .dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(45deg,var(--brand),var(--brand2))}
+    .menu{display:flex;gap:18px}
+    .menu a{color:var(--muted)}
+    .menu a:focus-visible, .btn:focus-visible{outline: 2px solid #0ea5e9;outline-offset: 3px;border-radius: 10px;}
+    .menu-btn{display:none}
+    @media(max-width:760px){
+      .menu{display:none}
+      .menu-btn{display:inline-flex;align-items:center;gap:8px;color:var(--txt);background:transparent;border:1px solid var(--border);padding:8px 12px;border-radius:10px}
+      .menu.open{display:flex;flex-direction:column;padding:10px 0}
+    }
+
+    /* Hero */
+    .hero{padding:72px 0 48px;border-bottom:1px solid var(--border)}
+    .hero h1{font-size:42px;line-height:1.2;margin:0 0 10px}
+    .hero p.lead{color:var(--muted);margin:0 0 22px;max-width:720px}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#bbf7d0;font-size:12px}
+    .actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:12px;border:1px solid var(--border);color:var(--txt);background:#0c162b}
+    .btn.primary{background:linear-gradient(45deg,var(--brand),var(--brand2));border:0}
+
+    /* 模块区 */
+    .section{padding:36px 0}
+    .grid{display:grid;gap:18px}
+    .features .grid{grid-template-columns:repeat(3,1fr)}
+    @media(max-width:900px){ .features .grid{grid-template-columns:1fr 1fr} }
+    @media(max-width:640px){ .features .grid{grid-template-columns:1fr} }
+    .card{border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.015));border-radius:16px;padding:18px}
+    .card h3{margin:8px 0 6px;font-size:18px}
+    .card p{margin:0;color:var(--muted)}
+
+    /* 展示面板 */
+    .panel{display:grid;grid-template-columns:1.2fr 1fr;gap:18px}
+    @media(max-width:900px){ .panel{grid-template-columns:1fr} }
+    .hero-art{border-radius:18px;min-height:260px;background:conic-gradient(from 0deg at 60% 40%, #0ea5e9, #8b5cf6, #22c55e, #0ea5e9);filter:saturate(130%);border:1px solid var(--border)}
+    .metric{border:1px dashed var(--border);border-radius:14px;padding:14px}
+    footer{padding:24px 0;color:var(--muted);border-top:1px solid var(--border)}
+    .skip-link{position: absolute;left: 10px;top: 10px;padding: 8px 12px;border-radius: 8px;background: #0ea5e9;color: #fff;text-decoration: none;transform: translateY(-200%);transition: transform 0.2s; z-index: 1000;}
+    .skip-link:focus{transform: translateY(0);outline: 2px solid #fff;outline-offset: 2px;}
+  </style>
+</head>
+<body>
+<a href="#main" class="skip-link">跳到主要内容</a>
+<header>
+  <div class="container nav">
+    <div class="brand"><span class="dot"></span>Nova</div>
+    <nav class="menu" id="menu">
+      <a href="#features">Features</a><a href="#showcase">Showcase</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a>
+    </nav>
+    <button class="menu-btn" aria-controls="menu" aria-expanded="false" id="menuBtn" aria-label="打开或收起导航">Menu</button>
+  </div>
+</header>
+
+<main class="container" id="main">
+  <section class="hero" aria-labelledby="h1">
+    <span class="badge">Pixel-perfect • Mobile-first • Fast</span>
+    <h1 id="h1">将你的想法变成<span style="background:linear-gradient(45deg,#22c55e,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent">高转化</span>的着陆页</h1>
+    <p class="lead">纯前端实现，响应式布局，清晰的代码结构与交付文档。支持 Netlify/Vercel 一键部署。</p>
+    <div class="actions">
+      <a class="btn primary" href="#pricing">立即开始</a>
+      <a class="btn" href="#showcase">查看样例</a>
+    </div>
+  </section>
+
+  <section class="section" id="showcase" aria-labelledby="sc-title">
+    <h2 id="sc-title" style="margin: 0 0 12px;">Showcase</h2>
+    <div class="panel">
+      <div class="hero-art" role="img" aria-label="示例渐变艺术背景"></div>
+      <div class="grid">
+        <div class="metric"><strong>语义化</strong><br><span style="color:#94a3b8">更好的 SEO & 可访问性</span></div>
+        <div class="metric"><strong>组件化</strong><br><span style="color:#94a3b8">复用 Section / 卡片 / CTA</span></div>
+        <div class="metric"><strong>部署指引</strong><br><span style="color:#94a3b8">Netlify / Vercel / GitHub Pages</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section features" id="features" aria-labelledby="ft-title">
+    <h2 id="ft-title" style="margin: 0 0 12px;">Features</h2>
+    <div class="grid">
+      <div class="card"><h3>响应式布局</h3><p>移动端优先，适配主流尺寸。</p></div>
+      <div class="card"><h3>像素级还原</h3><p>严格对齐设计稿，细节到位。</p></div>
+      <div class="card"><h3>性能友好</h3><p>合理加载资源，避免阻塞。</p></div>
+      <div class="card"><h3>可维护性</h3><p>清晰样式变量与结构。</p></div>
+      <div class="card"><h3>交互细节</h3><p>按钮状态、焦点可见、键盘可用。</p></div>
+      <div class="card"><h3>部署简单</h3><p>附域名与上线步骤。</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <h2>套餐与交付</h2>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card"><h3>Basic</h3><p>1 个 Section/单屏、响应式、1 次修订。</p></div>
+      <div class="card"><h3>Standard</h3><p>最多 3 个 Section、2 次修订、简单动效。</p></div>
+      <div class="card"><h3>Premium</h3><p>完整 1 页（3–5 模块）、3 次修订、部署指引。</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <h2>常见问题</h2>
+    <details><summary>是否提供设计？</summary><p>有设计稿我会严格还原；没有我会提供简洁现代默认布局。</p></details>
+    <details><summary>支持哪些部署？</summary><p>GitHub Pages、Netlify、Vercel。</p></details>
+  </section>
+</main>
+
+<footer>
+  <div class="container">© 2025 Nova Landing. All rights reserved.</div>
+</footer>
+
+<script>
+  // 移动端菜单开关
+  const btn=document.getElementById('menuBtn');
+  const menu=document.getElementById('menu');
+  btn?.addEventListener('click',()=>{
+    const open=menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded',open);
+  });
+</script>
+</body>
+</html>

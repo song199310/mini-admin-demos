@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://via.placeholder.com" crossorigin>
+  <title>性能示例（After）</title>
+  <meta name="description" content="图片懒加载、明确尺寸、脚本 defer、语义与无障碍。">
+  <style>
+    :root{--bg:#0b1220;--txt:#e5e7eb}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,var(--bg),#0e1930);color:var(--txt);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto}
+    header{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .grid{display:grid;gap:12px;grid-template-columns:repeat(3,1fr);padding:16px;max-width:1100px;margin:0 auto}
+    .imgwrap{border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#0f172a}
+    .imgwrap img{display:block;width:100%;height:220px;object-fit:cover}
+    @media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:560px){.grid{grid-template-columns:1fr}}
+    .badge{display:inline-block;margin:10px 20px;padding:6px 10px;border-radius:999px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#bbf7d0;font-size:12px}
+  </style>
+</head>
+<body>
+<header><strong>性能示例 After</strong> — 懒加载 / 设定尺寸 / 脚本 defer / 语义与无障碍</header>
+<span class="badge">Tips: 用 loading="lazy"、设置 width/height、把脚本改为 defer</span>
+<main class="grid" aria-label="Image gallery">
+  <!-- 明确尺寸 + 懒加载 -->
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/93c5fd/000000" alt="p1" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/86efac/000000" alt="p2" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/fca5a5/000000" alt="p3" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/fde68a/000000" alt="p4" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/c4b5fd/000000" alt="p5" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/a7f3d0/000000" alt="p6" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/f9a8d4/000000" alt="p7" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/fcd34d/000000" alt="p8" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/60a5fa/000000" alt="p9" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/34d399/000000" alt="p10" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/f87171/000000" alt="p11" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+  <div class="imgwrap"><img src="https://via.placeholder.com/1200x800/fb7185/000000" alt="p12" width="1200" height="800" loading="lazy" decoding="async" fetchpriority="low"></div>
+</main>
+
+<!-- 非阻塞脚本（defer） -->
+<script defer>
+  document.addEventListener('DOMContentLoaded',()=>{
+    const imgs = document.querySelectorAll('.imgwrap img');
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => {
+        if (e.isIntersecting) {
+          const img = e.target;
+          img.decoding = 'async';
+          io.unobserve(img);
+        }
+      });
+    },{
+      rootMargin: '200px'
+    }); 
+    imgs.forEach(i => io.observe(i)); 
+    });
+</script>
+</body>
+</html>

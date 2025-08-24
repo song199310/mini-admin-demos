@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>表单验证 & 提交体验 — Demo</title>
+  <style>
+    :root{--bg:#0b1220;--muted:#94a3b8;--txt:#e5e7eb;--err:#ef4444;--border:#1f2937}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,var(--bg),#0c1528);color:var(--txt);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto}
+    .container{max-width:860px;margin:0 auto;padding:32px 20px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.015));border:1px solid var(--border);border-radius:16px;padding:20px}
+    label{display:block;margin:10px 0 6px}
+    input,textarea,button{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#0d172a;color:var(--txt)}
+    input:focus,textarea:focus{outline:2px solid #0ea5e9}
+    .row{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+    @media(max-width:720px){.row{grid-template-columns:1fr}}
+    .hint{color:var(--muted);font-size:14px;margin-top:6px}
+    .strength{height:8px;border-radius:6px;background:#111827;margin-top:6px;overflow:hidden}
+    .bar{height:100%;width:0%;background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e);transition:width .25s ease}
+    .err{color:var(--err);font-size:13px;margin-top:6px;display:none}
+    .actions{display:flex;gap:12px;margin-top:14px;align-items:center}
+    .btn{background:#0ea5e9;border:0;color:white;cursor:pointer}
+    .btn[disabled]{opacity:.5;cursor:not-allowed}
+    .ghost{background:transparent;border:1px dashed var(--border);color:#94a3b8}
+    .toast{position:fixed;right:16px;bottom:16px;background:#111827;border:1px solid var(--border);padding:10px 14px;border-radius:12px;display:none}
+    .toast:focus{outline: 2px solid #0ea5e9; outline-offset: 3px;}
+    .sr{position:absolute;left:-9999px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>表单验证 & 提交体验（无后端）</h1>
+    <p class="hint">实时校验、密码强度条、提交 Loading、ARIA live。</p>
+    <div class="card">
+      <form id="f" novalidate aria-describedby="form-hint">
+        <span id="form-hint" class="sr">Use Tab to move between inputs; errors will be announced.</span>
+        <div class="row">
+          <div>
+            <label for="name">姓名</label>
+            <input id="name" name="name" autocomplete="name" placeholder="Your name" required />
+            <div id="e-name" class="err" role="alert" aria-live="assertive">请输入姓名（≥2 字）。</div>
+          </div>
+          <div>
+            <label for="email">邮箱</label>
+            <input id="email" name="email" autocomplete="email" type="email" inputmode="email" placeholder="you@example.com" required />
+            <div id="e-email" class="err" role="alert" aria-live="assertive">请输入有效邮箱。</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="pwd">密码</label>
+            <input id="pwd" name="pwd" autocomplete="new-password" type="password" placeholder="至少 8 位，含大小写与数字" required aria-describedby="pwd-hint" />
+            <div class="strength"><div class="bar" id="bar"></div></div>
+            <div id="pwd-hint" class="hint">强密码建议：≥8 位，含大小写、数字或符号。</div>
+            <div id="e-pwd" class="err" role="alert" aria-live="assertive">密码过弱。</div>
+          </div>
+          <div>
+            <label for="pwd2">确认密码</label>
+            <input id="pwd2" name="pwd2" autocomplete="new-password" type="password" placeholder="再次输入" required />
+            <div id="e-pwd2" class="err" role="alert" aria-live="assertive">两次密码不一致。</div>
+          </div>
+        </div>
+
+        <label for="msg">留言（可选）</label>
+        <textarea id="msg" name="msg" rows="4" placeholder="补充你的需求"></textarea>
+
+        <div class="actions">
+          <button class="btn" id="submit" disabled>提交</button>
+          <button type="reset" class="ghost">重置</button>
+          <span id="live" aria-live="polite" class="sr"></span>
+        </div>
+      </form>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" tabindex="-1">已提交（模拟）</div>
+  </div>
+
+<script>
+const f = document.getElementById('f');
+const nameEl = document.getElementById('name');
+const emailEl = document.getElementById('email');
+const pwd = document.getElementById('pwd');
+const pwd2 = document.getElementById('pwd2');
+const bar = document.getElementById('bar');
+const submitBtn = document.getElementById('submit');
+const live = document.getElementById('live');
+const toast = document.getElementById('toast');
+
+function showErr(id, ok){
+  const el = document.getElementById(id);
+  el.style.display = ok ? 'none' : 'block';
+  const map = {
+    'e-name':'name',
+    'e-email':'email',
+    'e-pwd':'pwd',
+    'e-pwd2':'pwd2'
+  };
+  const input = document.getElementById(map[id]);
+  if(input) input.setAttribute('aria-invalid', ok ? 'false' : 'true');
+}
+function score(s){
+  let sc=0; if(s.length>=8) sc++; if(/[A-Z]/.test(s)) sc++; if(/[a-z]/.test(s)) sc++;
+  if(/[0-9]/.test(s)) sc++; if(/[^A-Za-z0-9]/.test(s)) sc++; return sc;
+}
+function validate(){
+  let v=true;
+  const okName = (nameEl.value||'').trim().length>=2; showErr('e-name', okName); v = v && okName;
+  const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value); showErr('e-email', okEmail); v = v && okEmail;
+  const sc = score(pwd.value); bar.style.width = (sc*20)+'%'; const okPwd = sc>=3; showErr('e-pwd', okPwd); v = v && okPwd;
+  const okPwd2 = pwd.value && pwd.value === pwd2.value; showErr('e-pwd2', okPwd2); v = v && okPwd2;
+  submitBtn.disabled = !v; return v;
+}
+['input','change','keyup'].forEach(ev=>f.addEventListener(ev, validate));
+
+f.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  if(!validate()){ live.textContent='请先修正错误'; return; }
+  submitBtn.disabled=true; submitBtn.textContent='提交中…';
+  live.textContent='正在提交（模拟）';
+  setTimeout(()=>{
+    submitBtn.textContent='提交'; 
+    submitBtn.disabled=false;
+    toast.style.display='block'; 
+    toast.focus({preventScroll:true});
+    setTimeout(()=>{
+      toast.style.display='none';
+      nameEl.focus();
+    }, 1800);
+    f.reset(); bar.style.width='0%'; 
+    live.textContent='提交完成（模拟）';
+  }, 1000);
+});
+f.addEventListener('reset', ()=>{
+  ['e-name','e-email','e-pwd','e-pwd2'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  [nameEl, emailEl, pwd, pwd2].forEach(i=> i.setAttribute('aria-invalid','false'));
+  bar.style.width = '0%';
+});
+</script>
+</body>
+</html>
