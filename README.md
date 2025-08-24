@@ -22,6 +22,12 @@
 - 学生管理：https://song199310.github.io/mini-admin-demos/student-management.html  
 - 商品库存：https://song199310.github.io/mini-admin-demos/goods-stock.html  
 
+## Live Demos
+- Responsive Landing Page: https://song199310.github.io/mini-admin-demos/landing.html
+- Form Validation UX: https://song199310.github.io/mini-admin-demos/form-validate.html
+- Performance Demo (Before): https://song199310.github.io/mini-admin-demos/perf-before.html
+- Performance Demo (After): https://song199310.github.io/mini-admin-demos/perf-after.html
+
 ## 📞 联系我
 扫码添加微信 → 24h 内响应  
 <img src="https://raw.githubusercontent.com/song199310/mini-admin-demos/main/wechat-qrcode.jpg" width="160" alt="微信二维码" />
