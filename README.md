@@ -1,5 +1,11 @@
 # 🖥️ 前端小项目 · 在线演示
 
+## Live Demos
+- Responsive Landing Page: https://song199310.github.io/mini-admin-demos/landing.html
+- Form Validation UX: https://song199310.github.io/mini-admin-demos/form-validate.html
+- Performance Demo (Before): https://song199310.github.io/mini-admin-demos/perf-before.html
+- Performance Demo (After): https://song199310.github.io/mini-admin-demos/perf-after.html
+
 ## 📌 我能帮你做什么
 - **展示页 / 活动页**：简洁快速上线，支持移动端首屏适配
 - **表格管理小模块**：增删改查、搜索、排序、分页（可选）、JSON 导入导出
